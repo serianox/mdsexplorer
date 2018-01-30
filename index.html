@@ -28,14 +28,57 @@
                     error: (jqXHR, textStatus, errorThrown) => console.log(errorThrown)
                 });
             };
+            let renderMetadataStatement = (statement) => {
+                let content = '<h3 class="card-header">' + statement.description + '</h3>';
+                content += '<div class="card-block">';
+                if ('icon' in statement) {
+                    content += '<div style="float: right; width: 128px; height: 64px"><img style="float: right; max-width: 100%;max-height: 100%; padding: 12px" src="' + statement.icon + '"/></div>';
+                }
+                content += '<p><li>';
+                let id = _ => _;
+                [
+                    ['legalHeader', id],
+                    ['aaid', id],
+                    ['aaguid', id],
+                    ['attestationCertificateKeyIdentifiers', id],
+                    ['description', id],
+                    ['alternativeDescriptions', JSON.stringify],
+                    ['authenticatorVersion', id],
+                    ['protocolFamily', id],
+                    ['upv', _ => _.map(_ => '' + _.major + '.' + _.minor).join(', ')],
+                    ['assertionScheme', id],
+                    ['authenticationAlgorithm', id],
+                    ['authenticationAlgorithms', id],
+                    ['publicKeyAlgAndEncoding', id],
+                    ['publicKeyAlgAndEncodings', id],
+                    ['attestationTypes', JSON.stringify],
+                    ['userVerificationDetails', JSON.stringify],
+                    ['keyProtection', id],
+                    ['isKeyRestricted', id],
+                    ['isFreshUserVerificationRequired', id],
+                    ['matcherProtection', id],
+                    ['cryptoStrength', id],
+                    ['operatingEnv', id],
+                    ['attachmentHint', id],
+                    ['isSecondFactorOnly', id],
+                    ['tcDisplay', id],
+                    ['tcDisplayContentType', id],
+                    ['tcDisplayPNGCharacteristics', JSON.stringify],
+                    ['attestationRootCertificates', _ => _.map(_ => '<a href="data:application/x-pem-file;base64,' + _ + '">' + _.substr(1, 10) + '…</a>').join(', ')],
+                    ['ecdaaTrustAnchors', JSON.stringify],
+                    ['supportedExtensions', JSON.stringify],
+                ].forEach(_ => {
+                    let [p, a] = _;
+                    if (p in statement) {
+                        content += '<ul>' + p + ': ' + a(statement[p]) + '</ul>';
+                    }
+                });
+                content += '</p></li></div>';
+                return content;
+            }
             let processMetadataStatement = (data, id) => {
                 let statement = JSON.parse(atob(data));
-                let content = '<h3 class="card-header">' + statement.description + '</h3>';
-                content += '<div class="card-block"><li>';
-                for (let item in statement) {
-                    content += '<ul>' + item + ': ' + statement[item] + '</ul>';
-                }
-                content += '</li></div>';
+                let content = renderMetadataStatement(statement)
                 $('[id="' + id + '"]').append(content);
             };
             let processToC = (data) => {
