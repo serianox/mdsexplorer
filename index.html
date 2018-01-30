@@ -36,6 +36,31 @@
                 }
                 content += '<p><li>';
                 let id = _ => _;
+                let arr = _ => v => v.map(_).join(', ');
+                const TAG_ATTESTATION = {
+                    '11781': 'TAG_ATTESTATION_CERT',
+                    '15879': 'TAG_ATTESTATION_BASIC_FULL',
+                    '15880': 'TAG_ATTESTATION_BASIC_SURROGATE',
+                    '15881': 'TAG_ATTESTATION_ECDAA'
+                };
+                const ALG_KEY = {
+                    '256': 'ALG_KEY_ECC_X962_RAW',
+                    '257': 'ALG_KEY_ECC_X962_DER',
+                    '258': 'ALG_KEY_RSA_2048_RAW',
+                    '259': 'ALG_KEY_RSA_2048_DER',
+                    '260': 'ALG_KEY_COSE',
+                };
+                const ALG_SIGN = {
+                    '1': 'ALG_SIGN_SECP256R1_ECDSA_SHA256_RAW',
+                    '2': 'ALG_SIGN_SECP256R1_ECDSA_SHA256_DER',
+                    '3': 'ALG_SIGN_RSASSA_PSS_SHA256_RAW',
+                    '4': 'ALG_SIGN_RSASSA_PSS_SHA256_DER',
+                    '5': 'ALG_SIGN_SECP256K1_ECDSA_SHA256_RAW',
+                    '6': 'ALG_SIGN_SECP256K1_ECDSA_SHA256_DER',
+                    '7': 'ALG_SIGN_SM2_SM3_RAW',
+                    '8': 'ALG_SIGN_RSA_EMSA_PKCS1_SHA256_RAW',
+                    '9': 'ALG_SIGN_RSA_EMSA_PKCS1_SHA256_DER',
+                };
                 [
                     ['legalHeader', id],
                     ['aaid', id],
@@ -45,13 +70,13 @@
                     ['alternativeDescriptions', JSON.stringify],
                     ['authenticatorVersion', id],
                     ['protocolFamily', id],
-                    ['upv', _ => _.map(_ => '' + _.major + '.' + _.minor).join(', ')],
+                    ['upv', arr(_ => '' + _.major + '.' + _.minor)],
                     ['assertionScheme', id],
-                    ['authenticationAlgorithm', id],
-                    ['authenticationAlgorithms', id],
-                    ['publicKeyAlgAndEncoding', id],
-                    ['publicKeyAlgAndEncodings', id],
-                    ['attestationTypes', JSON.stringify],
+                    ['authenticationAlgorithm', _ => ALG_SIGN[_]],
+                    ['authenticationAlgorithms', arr(_ => ALG_SIGN[_])],
+                    ['publicKeyAlgAndEncoding', _ => ALG_KEY[_]],
+                    ['publicKeyAlgAndEncodings', arr(_ => ALG_KEY[_])],
+                    ['attestationTypes', arr(_ => TAG_ATTESTATION[_])],
                     ['userVerificationDetails', JSON.stringify],
                     ['keyProtection', id],
                     ['isKeyRestricted', id],
@@ -64,7 +89,7 @@
                     ['tcDisplay', id],
                     ['tcDisplayContentType', id],
                     ['tcDisplayPNGCharacteristics', JSON.stringify],
-                    ['attestationRootCertificates', _ => _.map(_ => '<a href="data:application/x-pem-file;base64,' + _ + '">' + _.substr(1, 10) + '…</a>').join(', ')],
+                    ['attestationRootCertificates', arr(_ => '<a href="data:application/x-pem-file;base64,' + _ + '">' + _.substr(1, 10) + '…</a>')],
                     ['ecdaaTrustAnchors', JSON.stringify],
                     ['supportedExtensions', JSON.stringify],
                 ].forEach(_ => {
