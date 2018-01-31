@@ -38,6 +38,7 @@
                 let id = _ => _;
                 let constOr = t => _ => t[_] || _;
                 let arr = _ => v => v.map(_).join(', ');
+                let bitfield = b => _ => b.map(kv => _ & kv[0] && kv[1]).filter(_ => _ !== 0).join(', ');
                 const TAG_ATTESTATION = {
                     '11781': 'TAG_ATTESTATION_CERT',
                     '15879': 'TAG_ATTESTATION_BASIC_FULL',
@@ -62,6 +63,13 @@
                     '8': 'ALG_SIGN_RSA_EMSA_PKCS1_SHA256_RAW',
                     '9': 'ALG_SIGN_RSA_EMSA_PKCS1_SHA256_DER',
                 };
+                const KEY_PROTECTION = [
+                    [1, 'KEY_PROTECTION_SOFTWARE'],
+                    [2, 'KEY_PROTECTION_HARDWARE'],
+                    [4, 'KEY_PROTECTION_TEE'],
+                    [8, 'KEY_PROTECTION_SECURE_ELEMENT'],
+                    [16, 'KEY_PROTECTION_REMOTE_HANDLE'],
+                ];
                 [
                     ['legalHeader', id],
                     ['aaid', id],
@@ -75,11 +83,11 @@
                     ['assertionScheme', id],
                     ['authenticationAlgorithm', constOr(ALG_SIGN)],
                     ['authenticationAlgorithms', arr(constOr(ALG_SIGN))],
-                    ['publicKeyAlgAndEncoding', constOr(ALG_SIGN)],
-                    ['publicKeyAlgAndEncodings', arr(constOr(ALG_SIGN))],
-                    ['attestationTypes', arr(constOr(ALG_SIGN))],
+                    ['publicKeyAlgAndEncoding', constOr(ALG_KEY)],
+                    ['publicKeyAlgAndEncodings', arr(constOr(ALG_KEY))],
+                    ['attestationTypes', arr(constOr(TAG_ATTESTATION))],
                     ['userVerificationDetails', JSON.stringify],
-                    ['keyProtection', id],
+                    ['keyProtection', bitfield(KEY_PROTECTION)],
                     ['isKeyRestricted', id],
                     ['isFreshUserVerificationRequired', id],
                     ['matcherProtection', id],
