@@ -37,8 +37,8 @@
                 content += '<p><li>';
                 let id = _ => _;
                 let constOr = t => _ => t[_] || _;
-                let arr = _ => v => v.map(_).join(', ');
-                let bitfield = b => _ => b.map(kv => _ & kv[0] && kv[1]).filter(_ => _ !== 0).join(', ');
+                let arr = f => v => v.map(f).map(_ => '[ ' + _ + ' ]').join(', ');
+                let bitfield = b => _ => b.map(kv => _ & kv[0] && kv[1]).filter(_ => _ !== 0).join(' | ');
                 const TAG_ATTESTATION = {
                     '11781': 'TAG_ATTESTATION_CERT',
                     '15879': 'TAG_ATTESTATION_BASIC_FULL',
@@ -112,7 +112,7 @@
                     ['aaguid', id],
                     ['attestationCertificateKeyIdentifiers', id],
                     ['description', id],
-                    ['alternativeDescriptions', JSON.stringify],
+                    ['alternativeDescriptions', arr(JSON.stringify)],
                     ['authenticatorVersion', id],
                     ['protocolFamily', id],
                     ['upv', arr(_ => '' + _.major + '.' + _.minor)],
@@ -122,7 +122,7 @@
                     ['publicKeyAlgAndEncoding', constOr(ALG_KEY)],
                     ['publicKeyAlgAndEncodings', arr(constOr(ALG_KEY))],
                     ['attestationTypes', arr(constOr(TAG_ATTESTATION))],
-                    ['userVerificationDetails', JSON.stringify],
+                    ['userVerificationDetails', arr(arr(_ => bitfield(USER_VERIFY)(_.userVerification)))],
                     ['keyProtection', bitfield(KEY_PROTECTION)],
                     ['isKeyRestricted', id],
                     ['isFreshUserVerificationRequired', id],
@@ -133,10 +133,10 @@
                     ['isSecondFactorOnly', id],
                     ['tcDisplay', bitfield(TRANSACTION_CONFIRMATION_DISPLAY)],
                     ['tcDisplayContentType', id],
-                    ['tcDisplayPNGCharacteristics', JSON.stringify],
+                    ['tcDisplayPNGCharacteristics', arr(JSON.stringify)],
                     ['attestationRootCertificates', arr(_ => '<a href="data:application/x-pem-file;base64,' + _ + '">' + _.substr(1, 10) + '…</a>')],
-                    ['ecdaaTrustAnchors', JSON.stringify],
-                    ['supportedExtensions', JSON.stringify],
+                    ['ecdaaTrustAnchors', arr(JSON.stringify)],
+                    ['supportedExtensions', arr(JSON.stringify)],
                 ].forEach(_ => {
                     let [p, a] = _;
                     if (p in statement) {
