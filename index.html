@@ -36,6 +36,7 @@
                 }
                 content += '<p><li>';
                 let id = _ => _;
+                let constOr = t => _ => t[_] || _;
                 let arr = _ => v => v.map(_).join(', ');
                 const TAG_ATTESTATION = {
                     '11781': 'TAG_ATTESTATION_CERT',
@@ -72,11 +73,11 @@
                     ['protocolFamily', id],
                     ['upv', arr(_ => '' + _.major + '.' + _.minor)],
                     ['assertionScheme', id],
-                    ['authenticationAlgorithm', _ => ALG_SIGN[_]],
-                    ['authenticationAlgorithms', arr(_ => ALG_SIGN[_])],
-                    ['publicKeyAlgAndEncoding', _ => ALG_KEY[_]],
-                    ['publicKeyAlgAndEncodings', arr(_ => ALG_KEY[_])],
-                    ['attestationTypes', arr(_ => TAG_ATTESTATION[_])],
+                    ['authenticationAlgorithm', constOr(ALG_SIGN)],
+                    ['authenticationAlgorithms', arr(constOr(ALG_SIGN))],
+                    ['publicKeyAlgAndEncoding', constOr(ALG_SIGN)],
+                    ['publicKeyAlgAndEncodings', arr(constOr(ALG_SIGN))],
+                    ['attestationTypes', arr(constOr(ALG_SIGN))],
                     ['userVerificationDetails', JSON.stringify],
                     ['keyProtection', id],
                     ['isKeyRestricted', id],
